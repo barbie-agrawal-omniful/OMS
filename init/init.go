@@ -1,11 +1,14 @@
-package main
+package appinit
 
 import (
 	"context"
 	"oms/database"
 )
 
-func main() {
-	ctx := context.Background()
+func Initialize(ctx context.Context) {
+	initializeDb(ctx)
+}
+
+func initializeDb(ctx context.Context) {
 	database.ConnectMongo(ctx)
 }
