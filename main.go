@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"oms/database"
+	"oms/listener"
 	"oms/routes"
 	"time"
 
@@ -34,18 +35,21 @@ func main() {
 	}
 	fmt.Println("Total Orders in DB:", count)
 
+	// Start SQS consumer in a separate goroutine
+	go listener.StartConsume()
+
 }
 
 func runHttpServer(ctx context.Context) {
 	server := http.InitializeServer(":8081", 10*time.Second, 10*time.Second, 70*time.Second)
 
 	if err := server.StartServer("OMS Service Started"); err != nil {
-		log.Fatalf("Error starting the server:", err)
+		log.Fatal("Error starting the server:", err)
 	}
 
 	err := routes.PublicRoutes(ctx, server)
 	if err != nil {
-		log.Fatalf("Error setting up routes:", err)
+		log.Fatal("Error setting up routes:", err)
 		return
 	}
 

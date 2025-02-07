@@ -7,28 +7,20 @@ import (
 )
 
 type Orders struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	OrderNumber string             `bson:"order_number" json:"order_number"`
-	CustomerID  string             `bson:"customer_id" json:"customer_id"`
-	Status      string             `bson:"status" json:"status"`
-	TotalAmount float64            `bson:"total_amount" json:"total_amount"`
-	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
-	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
+	ID           primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	OrderNumber  string             `bson:"order_number" json:"order_number"`
+	CustomerName string             `bson:"customer_name,omitempty" json:"customer_name"`
+	Status       string             `bson:"status" json:"status"`
+	TotalAmount  float64            `bson:"total_amount" json:"total_amount"`
+	CreatedAt    time.Time          `bson:"created_at" json:"created_at"`
+	UpdatedAt    time.Time          `bson:"updated_at" json:"updated_at"`
+	TenantID     string             `bson:"tenant_id" json:"tenant_id"`
+	SellerID     string             `bson:"seller_id" json:"seller_id"`
+	OrderItem    []OrderItems       `bson:"order_items" json:"order_items"`
+	OrderNo      string             `bson:"order_no" json:"order_no"`
 }
 
 type OrderItems struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	OrderID     primitive.ObjectID `bson:"order_id" json:"order_id"`
-	ProductID   string             `bson:"product_id" json:"product_id"`
-	ProductName string             `bson:"product_name" json:"product_name"`
-	Quantity    int                `bson:"quantity" json:"quantity"`
-	Price       float64            `bson:"price" json:"price"`
-	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
-	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
-}
-
-type OrderRequest struct {
-	HubId    string `bson:"hub_id" json:"hub_id"`
-	TenantID string `bson:"tenant_id" json:"tenant_id"`
-	Path     string `bson:"csv_path" json:"csv_path"`
+	SKUID    string `bson:"sku_id,omitempty" json:"sku_id"`
+	Quantity int    `bson:"quantity" json:"quantity"`
 }

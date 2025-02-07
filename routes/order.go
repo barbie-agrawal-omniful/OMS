@@ -19,7 +19,7 @@ func PublicRoutes(ctx context.Context, server *http.Server) error {
 	}))
 
 	OrderGroup.POST("", controllers.CreateOrder)
-	// OrderGroup.GET("", controllers.ViewOrder)
+	OrderGroup.GET("/orders", controllers.ViewOrders)
 
 	return nil
 }

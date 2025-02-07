@@ -5,42 +5,84 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"oms/models"
+	"oms/database"
 	"os"
 	"strings"
+
+	orders "oms/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/omniful/go_commons/csv"
 )
 
+// OrderRequest represents the API request payload
+type OrderRequest struct {
+	FilePath string `json:"file_path"`
+}
+
 // CreateOrder handles incoming order requests, validates them, and stores them in the database
 func CreateOrder(c *gin.Context) {
-	var orderReq models.OrderRequest
-	if err := c.ShouldBindJSON(&orderReq); err != nil {
+	var req OrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Fatal("Error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		// return
 	}
 
 	// Validate csv
-	if err := validateCSVFilePath(orderReq.Path); err != nil {
+	if err := validateCSVFilePath(req.FilePath); err != nil {
 		log.Fatal("Invalid Path")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	// Push event in Create Bulk Order Queue - SQS (in future)
+	// Push event in Create Bulk Order Queue - SQS
+	orders.SetProducer(c, database.Queue, req.FilePath)
 
 	// Parse the csv
-	records, err := getCsvData(orderReq.Path)
+	records, err := getCsvData(req.FilePath)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(records)
 }
 
-// func ViewOrder(c *gin.Context) {
+// View orders according to filters
+func ViewOrders(c *gin.Context) {
+	// Create a map to hold the filter parameters
+	filters := make(map[string]string)
 
-// }
+	// Bind query parameters to the filter map
+	tenantID := c.DefaultQuery("tenant_id", "")
+	if tenantID != "" {
+		filters["tenant_id"] = tenantID
+	}
+	sellerID := c.DefaultQuery("seller_id", "")
+	if sellerID != "" {
+		filters["seller_id"] = sellerID
+	}
+	status := c.DefaultQuery("status", "")
+	if status != "" {
+		filters["status"] = status
+	}
+	startDate := c.DefaultQuery("start_date", "")
+	if startDate != "" {
+		filters["start_date"] = startDate
+	}
+	endDate := c.DefaultQuery("end_date", "")
+	if endDate != "" {
+		filters["end_date"] = endDate
+	}
+
+	// Fetch orders based on the filters
+	orders, err := database.GetFilteredOrders(filters)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return the results
+	c.JSON(http.StatusOK, gin.H{"orders": orders})
+}
 
 func getCsvData(path string) ([]csv.Records, error) {
 	fmt.Println(path)
