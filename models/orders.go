@@ -24,3 +24,12 @@ type OrderItems struct {
 	SKUID    string `bson:"sku_id,omitempty" json:"sku_id"`
 	Quantity int    `bson:"quantity" json:"quantity"`
 }
+
+type KafkaResponseOrderMessage struct {
+	OrderItemsID    string `json:"order_items_id"`
+	OrderID         string `json:"OrderID"`
+	SKUID           string `json:"sku_id"`
+	QuantityOrdered int    `json:"quantity_ordered"`
+	HubID           string `json:"hub_id"`
+	SellerID        string `json:"seller_id"`
+}
